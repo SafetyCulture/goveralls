@@ -279,6 +279,10 @@ func process() error {
 		pullRequest = prNumber
 	}
 
+	if ciName := os.Getenv("CI_NAME"); ciName != "" {
+		service = &ciName
+	}
+
 	sourceFiles, err := getCoverage()
 	if err != nil {
 		return err
