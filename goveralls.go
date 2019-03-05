@@ -87,6 +87,9 @@ type Job struct {
 	Parallel           *bool         `json:"parallel,omitempty"`
 	Git                *Git          `json:"git,omitempty"`
 	RunAt              time.Time     `json:"run_at"`
+	ServiceBranch      string        `json:"service_branch"`
+	ServiceBuildURL    string        `json:"service_build_url"`
+	ServiceNumber      string        `json:"service_number"`
 }
 
 // A Response is returned by the Coveralls.io API.
@@ -243,7 +246,7 @@ func process() error {
 	// Initialize Job
 	//
 	var jobId string
-	if ciJobId := os.Getenv("CI_BUILD_NUMBER"); ciJobId != "" {
+	if ciJobId := os.Getenv("CI_JOB_ID"); ciJobId != "" {
 		jobId = ciJobId
 	} else if travisJobId := os.Getenv("TRAVIS_JOB_ID"); travisJobId != "" {
 		jobId = travisJobId
@@ -283,6 +286,21 @@ func process() error {
 		service = &ciName
 	}
 
+	var buildNumber string
+	if ciBuildNumber := os.Getenv("CI_BUILD_NUMBER"); ciBuildNumber != "" {
+		buildNumber = ciBuildNumber
+	}
+
+	var branch string
+	if ciBranch := os.Getenv("CI_BRANCH"); ciBranch != "" {
+		branch = ciBranch
+	}
+
+	var buildURL string
+	if ciBuildURL := os.Getenv("CI_BUILD_URL"); ciBuildURL != "" {
+		buildURL = ciBuildURL
+	}
+
 	sourceFiles, err := getCoverage()
 	if err != nil {
 		return err
@@ -302,6 +320,18 @@ func process() error {
 	// for the job and can't find it.
 	if jobId != "" {
 		j.ServiceJobId = jobId
+	}
+
+	if branch != "" {
+		j.ServiceBranch = branch
+	}
+
+	if buildURL != "" {
+		j.ServiceBuildURL = buildURL
+	}
+
+	if buildNumber != "" {
+		j.ServiceNumber = buildNumber
 	}
 
 	// Ignore files
