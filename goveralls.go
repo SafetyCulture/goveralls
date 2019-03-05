@@ -243,7 +243,9 @@ func process() error {
 	// Initialize Job
 	//
 	var jobId string
-	if travisJobId := os.Getenv("TRAVIS_JOB_ID"); travisJobId != "" {
+	if ciJobId := os.Getenv("CI_BUILD_NUMBER"); ciJobId != "" {
+		jobId = ciJobId
+	} else if travisJobId := os.Getenv("TRAVIS_JOB_ID"); travisJobId != "" {
 		jobId = travisJobId
 	} else if circleCiJobId := os.Getenv("CIRCLE_BUILD_NUM"); circleCiJobId != "" {
 		jobId = circleCiJobId
